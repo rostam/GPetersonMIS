@@ -22,7 +22,7 @@ int num_of_spokes(vector<int> C)
 }
 
 //return 0-1 coding of a subset
-vector<int> code(vector<int> C)
+vector<int> code(vector<int> C, size)
 {
   vector<vector<int> > ret(size);
   for(int i=0;i < C.size();i++)
