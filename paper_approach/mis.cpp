@@ -1,14 +1,17 @@
 #include <iostream>
 #include <vector>
+#include <bitset>
 
 using namespace std;
 
 // P(n,k) such that n is even = 2*(n/2) = 2*alpha
 // in this way spoke is an edge between ai -> ai+alpha
-int n, k;
+const int n, k;
 vector<vector<int> > graph;
 
-vector<vector<int> > all_code;
+bitset<100> b;
+
+vector<bitset<4*n> > all_code;
 vector<int> all_vec;
 
 //number of spokes of set C
@@ -22,14 +25,23 @@ int num_of_spokes(vector<int> C)
 }
 
 //return 0-1 coding of a subset
-vector<int> code(vector<int> C, size)
+void code(vector<int> A1, vector<int> B, vector<int> A2, indA, vector<int> indB)
 {
-  vector<vector<int> > ret(size);
-  for(int i=0;i < C.size();i++)
-  {
-    ret[C[i]] = 1;
-  }
-  return ret;
+  bitset<4*n> temp;
+  for(int i=0;i < A1.size();i++)
+    temp.set(A1[i],true);
+  
+  for(int i=0;i < B.size();i++)
+    temp.set(B[i] + n,true);
+
+  for(int i=0;i < A2.size();i++)
+    temp.set(A2[i] + n + n,true);
+
+  for(int i=0;i < indA.size();i++)
+    temp.set(indA[i] + n + n + n,true);
+
+  all_code.push_back(temp);
+  all_vect.push_back(indB);
 }
 
 
