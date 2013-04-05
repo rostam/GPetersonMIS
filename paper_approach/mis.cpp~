@@ -1,18 +1,32 @@
 #include <iostream>
 #include <vector>
 #include <bitset>
+#include <algorithm>
 
 using namespace std;
 
 // P(n,k) such that n is even = 2*(n/2) = 2*alpha
 // in this way spoke is an edge between ai -> ai+alpha
 const int n = 30, k = 10;
-vector<vector<int> > graph;
+int graph[n][n];
 
 bitset<100> b;
 
 vector<bitset<4*n> > all_code;
 vector<vector<int> > all_vect;
+
+void generalized_peterson()
+{
+     for(int i=0;i<n;i++)
+     for(int j=0;j<n;j++)
+       graph[i][j] = 0;
+     for(int i=0;i<n;i++)
+     {
+         graph[i][(i+1)%n] = 1;
+         graph[i][i+n] = 1;
+         graph[i + n][(i+k)%n + n] = 1;
+     }
+}
 
 void subsets(vector<int> arr, int size, int left, int index, vector<int> *l, vector<vector<int> >* ret){
     if(left==0){
@@ -20,7 +34,7 @@ void subsets(vector<int> arr, int size, int left, int index, vector<int> *l, vec
         return;
     }
     for(int i=index; i < size;i++){
-        l->push_back((*arr)[i]);
+        l->push_back(arr[i]);
         subsets(arr,size,left-1,i+1,l,ret);
         l->pop_back();
     }
@@ -120,26 +134,43 @@ void exhaustive_mis(vector<int> A1, vector<int> B, vector<int> A2)
    }
 }
 
-  
-int spokes_index = 2;
-vector<vector<int> > get_k_spokes()
+vector<vector<int> > get_k_spokes(vector<int> B)
 {
+  
   vector<vector<int> > ret(3);
-  for(int i=0;i < k;i++)
+  
+  ret[0] = vector<int>();
+  for(int i=0;i < B.size();i++)
   {
-    ret[0].push_back(spokes_index*i);
-    ret[0].push_back(spokes_index*i + n/2);
-
-    ret[1].push_back((spokes_index+1)*i);
-    ret[1].push_back((spokes_index+1)*i + n/2);
+    vector<int>::iterator iter = find(B.begin(), B.end(), B[i] + n);
+    if( iter != B.end())
+    {
+      ret[0].push_back(B[i]);
+      ret[0].push_back(B[i+n]);
+      B.erase(iter);
+      B.erase(find(B.begin(), B.end(), B[i]));
+    }
+    
+    if(ret[0].size() == k) break;
   }
   
-  for(int i=(spokes_index+1)*i + k;i < n;i++)
+  ret[2] = vector<int>();
+  for(int i=0;i < B.size();i++)
   {
-    ret[3].push_back(i);
-    ret[3].push_back(i+n/2);
+    vector<int>::iterator iter = find(B.begin(), B.end(), B[i] + n);
+    if( iter != B.end())
+    {
+      ret[2].push_back(B[i]);
+      ret[2].push_back(B[i+n]);
+      B.erase(iter);
+      B.erase(find(B.begin(), B.end(), B[i]));
+    }
+    
+    if(ret[2].size() == k) break;
   }
-  spokes_index=spokes_index+2;
+    
+  
+  ret[1] = B;
   return ret;
 }
 
@@ -154,7 +185,7 @@ vector<int> MIS(vector<int> A1, vector<int> B, vector<int> A2)
   }
   else
   {
-      vector<vector<int> > ret = get_k_spokes();
+      vector<vector<int> > ret = get_k_spokes(B);
       vector<int> B1 = ret[0];
       vector<int> B3 = ret[1];
       vector<int> B2 = ret[3];
@@ -173,7 +204,7 @@ vector<int> MIS(vector<int> A1, vector<int> B, vector<int> A2)
 	vector<int> X2 = all_mis_X2[i2];
 	vector<int> Y1 = all_mis_Y1[i3];
 	vector<int> Y2 = all_mis_Y2[i4];
-	
+	cup (X1, cup(X2, cup(Y1, cup(Y2
 	
       }
   }
@@ -187,7 +218,7 @@ void print( vector<int> l){
 }
 
 int main(){
-    int array[5]={1,2,3,4,5};
+    generalized_peterson();
     //vector<int> lt;   
     //vector<vector<int> > ret;
     //subsets(array,5,3,0,&lt,&ret);
