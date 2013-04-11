@@ -7,7 +7,7 @@ using namespace std;
 
 // P(n,k) such that n is even = 2*(n/2) = 2*alpha
 // in this way spoke is an edge between ai -> ai+alpha
-const int n = 30, k = 10;
+const int n = 30, k = 10, m = 15;
 int graph[n][n];
 
 bitset<100> b;
@@ -17,14 +17,14 @@ vector<vector<int> > all_vect;
 
 void generalized_peterson()
 {
-     for(int i=0;i<n;i++)
-     for(int j=0;j<n;j++)
+     for(int i=0;i<m;i++)
+     for(int j=0;j<m;j++)
        graph[i][j] = 0;
-     for(int i=0;i<n;i++)
+     for(int i=0;i<m;i++)
      {
-         graph[i][(i+1)%n] = 1;
-         graph[i][i+n] = 1;
-         graph[i + n][(i+k)%n + n] = 1;
+         graph[i][(i+1)%m] = 1;
+         graph[i][i+m] = 1;
+         graph[i + m][(i+k)%m + m] = 1;
      }
 }
 
@@ -49,6 +49,26 @@ int num_of_spokes(vector<int> C)
     if(C[i] == C[j] + n/2) ret++;
   return ret;
 }
+
+//return 0-1 coding of a subset
+bitset<4*n> only_code(vector<int> A1, vector<int> B, vector<int> A2, vector<int> indA)
+{
+  bitset<4*n> temp;
+  for(int i=0;i < A1.size();i++)
+    temp.set(A1[i],true);
+  
+  for(int i=0;i < B.size();i++)
+    temp.set(B[i] + n,true);
+
+  for(int i=0;i < A2.size();i++)
+    temp.set(A2[i] + n + n,true);
+
+  for(int i=0;i < indA.size();i++)
+    temp.set(indA[i] + n + n + n,true);
+
+  return temp;
+}
+
 
 //return 0-1 coding of a subset
 void code(vector<int> A1, vector<int> B, vector<int> A2, vector<int> indA, vector<int> indB)
@@ -121,16 +141,16 @@ void exhaustive_mis(vector<int> A1, vector<int> B, vector<int> A2)
    for(int i=0;i < all_mis_A.size();i++)
    {
      vector<int> A_i = all_mis_A[i];
-     int max_size = 0, max_index = 0;
+     int maxY1Y2_size = 0, maxY1Y2_index = 0;
      for(int j=0;j < all_mis_B.size();j++)
      {
        vector<int> B_j = all_mis_B[j];
        vector<int> tmp = cup(A_i, B_j);
        if(is_mis(tmp) == false) continue;
-       if(max_size < B_j.size()) {max_size=B_j.size();max_index=j;}
+       if(maxY1Y2_size < B_j.size()) {maxY1Y2_size=B_j.size();maxY1Y2_index=j;}
      }
      
-     code(A1, B, A2, A_i,all_mis_B[max_index]);
+     code(A1, B, A2, A_i,all_mis_B[maxY1Y2_index]);
    }
 }
 
@@ -195,6 +215,8 @@ vector<int> MIS(vector<int> A1, vector<int> B, vector<int> A2)
       vector<vector<int> > all_mis_Y1 = mis_subset(B1);
       vector<vector<int> > all_mis_Y2 = mis_subset(B3);
 
+      vector<int> maxY1Y2;
+
       for(int i1=0;i1 < all_mis_X1.size();i1++)
       for(int i2=0;i2 < all_mis_X2.size();i2++)
       for(int i3=0;i3 < all_mis_Y1.size();i3++)
@@ -204,10 +226,18 @@ vector<int> MIS(vector<int> A1, vector<int> B, vector<int> A2)
 	vector<int> X2 = all_mis_X2[i2];
 	vector<int> Y1 = all_mis_Y1[i3];
 	vector<int> Y2 = all_mis_Y2[i4];
-	//cup (X1, cup(X2, cup(Y1, cup(Y2
+        bitset<4*n> ret = only_code(B1, B2, B3, cup(Y1,Y2));
+        for(int i5=0;i5 < all_code.size();i5++)
+		if(all_code[i5] == ret)
+			if(is_mis(cup (X1, cup(X2, cup(Y1, cup(Y2, all_vect[i5]))))))
+				if(maxY1Y2.size() < cup(Y1, cup(Y2, all_vect[i5])).size())
+					maxY1Y2 = cup(Y1, cup(Y2, all_vect[i5]));
+				
 	
       }
+      return maxY1Y2;
   }
+  return vector<int>();
 }
 
 
