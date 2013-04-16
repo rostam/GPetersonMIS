@@ -7,7 +7,7 @@ using namespace std;
 
 // P(n,k) such that n is even = 2*(n/2) = 2*alpha
 // in this way spoke is an edge between ai -> ai+alpha
-const int n = 30, k = 10, m = 15;
+const int n = 60, k = 5, m = 30;
 int graph[n][n];
 
 bitset<100> b;
@@ -15,10 +15,17 @@ bitset<100> b;
 vector<bitset<4*n> > all_code;
 vector<vector<int> > all_vect;
 
+
+void print( vector<int> l){
+    for(vector<int>::iterator it=l.begin(); it!=l.end() ; ++it)
+            cout << " " << *it;
+    cout<<endl;
+}
+
 void generalized_peterson()
 {
-     for(int i=0;i<m;i++)
-     for(int j=0;j<m;j++)
+     for(int i=0;i<n;i++)
+     for(int j=0;j<n;j++)
        graph[i][j] = 0;
      for(int i=0;i<m;i++)
      {
@@ -44,9 +51,13 @@ void subsets(vector<int> arr, int size, int left, int index, vector<int> *l, vec
 int num_of_spokes(vector<int> C)
 {
   int ret = 0;
+  cout << "in num of spokes: "; print(C);
   for(int i=0;i < C.size();i++)
   for(int j=i;j < C.size();j++)
-    if(C[i] == C[j] + n/2) ret++;
+  if(C[i] == (C[j] + m)%n) 
+  {
+    ret++;
+  }
   return ret;
 }
 
@@ -158,11 +169,10 @@ vector<vector<int> > get_k_spokes(vector<int> B)
 {
   
   vector<vector<int> > ret(3);
-  
   ret[0] = vector<int>();
   for(int i=0;i < B.size();i++)
   {
-    vector<int>::iterator iter = find(B.begin(), B.end(), B[i] + n);
+    vector<int>::iterator iter = find(B.begin(), B.end(), (B[i] + m)%n);
     if( iter != B.end())
     {
       ret[0].push_back(B[i]);
@@ -171,13 +181,13 @@ vector<vector<int> > get_k_spokes(vector<int> B)
       B.erase(find(B.begin(), B.end(), B[i]));
     }
     
-    if(ret[0].size() == k) break;
+    if(ret[0].size() == 2*k) break;
   }
   
   ret[2] = vector<int>();
   for(int i=0;i < B.size();i++)
   {
-    vector<int>::iterator iter = find(B.begin(), B.end(), B[i] + n);
+    vector<int>::iterator iter = find(B.begin(), B.end(), (B[i] + m)%n);
     if( iter != B.end())
     {
       ret[2].push_back(B[i]);
@@ -186,11 +196,13 @@ vector<vector<int> > get_k_spokes(vector<int> B)
       B.erase(find(B.begin(), B.end(), B[i]));
     }
     
-    if(ret[2].size() == k) break;
+    if(ret[2].size() == 2*k) break;
   }
-    
-  
+   
   ret[1] = B;
+  cout << "ret[0] : ";print(ret[0]);
+  cout << "ret[1] : ";print(ret[1]);
+  cout << "ret[2] : ";print(ret[2]);
   return ret;
 }
 
@@ -199,6 +211,8 @@ vector<vector<int> > get_k_spokes(vector<int> B)
 // and retX is maximum with respect to previous property
 vector<int> MIS(vector<int> A1, vector<int> B, vector<int> A2)
 {
+  cerr << "size of B: " << B.size() << endl;
+  cerr << "num of spokes: " << num_of_spokes(B) << endl;
   if(num_of_spokes(B) < 3*k)
   {
       exhaustive_mis(A1,B,A2);
@@ -208,7 +222,7 @@ vector<int> MIS(vector<int> A1, vector<int> B, vector<int> A2)
       vector<vector<int> > ret = get_k_spokes(B);
       vector<int> B1 = ret[0];
       vector<int> B3 = ret[1];
-      vector<int> B2 = ret[3];
+      vector<int> B2 = ret[2];
       MIS(B1,B2,B3); 
       vector<vector<int> > all_mis_X1 = mis_subset(A1);
       vector<vector<int> > all_mis_X2 = mis_subset(A2);
@@ -241,20 +255,18 @@ vector<int> MIS(vector<int> A1, vector<int> B, vector<int> A2)
 }
 
 
-void print( vector<int> l){
-    for(vector<int>::iterator it=l.begin(); it!=l.end() ; ++it)
-            cout << " " << *it;
-    cout<<endl;
-}
-
 int main(){
     generalized_peterson();
-    //vector<int> lt;   
-    //vector<vector<int> > ret;
-    //subsets(array,5,3,0,&lt,&ret);
-    
-    //for(int i=0;i < subsets.size();i++)
-    //   print(subsets[i]);
+    vector<int> one_to_n;
+    for(int i=0;i < n;i++) one_to_n.push_back(i);
+    vector<vector<int> > ret = get_k_spokes(one_to_n);
+    cout << "getting k spodes" << endl;
+    vector<int> B1 = ret[0];
+    vector<int> B3 = ret[1];
+    vector<int> B2 = ret[2];
+    //cerr << "size :  " << B1.size() << " " << B2.size() << " " << B3.size << " " << endl;
+    cerr << "starting with the algorithm" << endl;
+    vector<int> max_ind_set = MIS(B1,B2,B3);
     return 0;
 }
 
