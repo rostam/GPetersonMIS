@@ -43,7 +43,7 @@ The paper establishes upper and lower bounds for *α(P(n, k))* and proves exact 
 | Even k < 2·⌊n/4⌋ | α ≥ n + ⌊n/(2k)⌋ + 2k |
 | General even k (≥ 2) | Upper bound proved |
 
-A key conjecture addressed: **β(P(n,k)) ≤ n + ⌈n/5⌉** for all n and k (from reference [1]).
+A key conjecture addressed (from reference [1]): **α(P(n,k)) ≤ n + ⌈n/5⌉** for all n and k.
 
 The authors verified this conjecture computationally for all *n < 78* and proved it for some cases.
 
@@ -96,10 +96,12 @@ This is the **primary implementation** that follows the paper's algorithmic appr
 
 6. **Bitset Encoding** (`code()`, `only_code()`): Uses bitsets to compactly encode independent set configurations for efficient lookup during the combination phase.
 
-**Parameters** (set as constants):
-- `n = 60` (total vertices = 2 × 30)
-- `k = 5` (inner cycle step)
-- `m = 30` (half of n, i.e., vertices per cycle)
+**Parameters** (set as constants in the code):
+- `m = 30` — number of vertices per cycle (this is *n* in the paper's P(n, k) notation)
+- `k = 5` — inner cycle step size
+- `n = 60` — total number of vertices (= 2 × m = 2 × 30), i.e., the adjacency matrix dimension
+
+> **Note:** The code variable `n` refers to the *total* vertex count (2m), while the paper's *n* in P(n, k) refers to the number of vertices per cycle (the code's `m`). The graph constructed is **P(30, 5)** in the paper's notation.
 
 ### `exh_mis.c` — Exhaustive MIS with igraph
 
